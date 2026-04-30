@@ -57,6 +57,9 @@ export function PageClientImpl(props: {
   );
 
   const handlePreJoinSubmit = React.useCallback(async (values: LocalUserChoices) => {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
     setPreJoinChoices(values);
     const url = new URL(CONN_DETAILS_ENDPOINT, window.location.origin);
     url.searchParams.append('roomName', props.roomName);

@@ -35,6 +35,10 @@ export function ChatNotifications() {
           border: '1px solid var(--lk-border-color)',
         },
       });
+
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        new Notification(sender, { body: msg.message });
+      }
     }
   }, [chatMessages, layoutContext?.widget.state?.showChat]);
 
