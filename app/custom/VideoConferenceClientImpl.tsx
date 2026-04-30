@@ -13,6 +13,7 @@ import {
 import { DebugMode } from '@/lib/Debug';
 import { useEffect, useMemo, useState } from 'react';
 import { KeyboardShortcuts } from '@/lib/KeyboardShortcuts';
+import { ChatNotifications } from '@/lib/ChatNotifications';
 import { SettingsMenu } from '@/lib/SettingsMenu';
 import { useSetupE2EE } from '@/lib/useSetupE2EE';
 import { useLowCPUOptimizer } from '@/lib/usePerfomanceOptimiser';
@@ -91,6 +92,7 @@ export function VideoConferenceClientImpl(props: {
             process.env.NEXT_PUBLIC_SHOW_SETTINGS_MENU === 'true' ? SettingsMenu : undefined
           }
         />
+        <ChatNotifications />
         <DebugMode logLevel={LogLevel.debug} />
       </RoomContext.Provider>
     </div>
