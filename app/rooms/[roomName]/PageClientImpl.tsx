@@ -24,11 +24,11 @@ import {
   DeviceUnsupportedError,
   RoomConnectOptions,
   RoomEvent,
-  MediaDeviceFailure,
   TrackPublishDefaults,
   VideoCaptureOptions,
 } from 'livekit-client';
-import toast from 'react-hot-toast';
+import { showErrorToast } from '@/lib/toast-utils';
+import { handleMediaDeviceError } from '@/lib/media-device-error';
 import { useRouter } from 'next/navigation';
 import { useSetupE2EE } from '@/lib/useSetupE2EE';
 import { useLowCPUOptimizer } from '@/lib/usePerfomanceOptimiser';
@@ -213,58 +213,14 @@ function VideoConferenceComponent(props: {
   const router = useRouter();
   const handleOnLeave = React.useCallback(() => router.push('/'), [router]);
   const handleError = React.useCallback((error: Error) => {
-    console.error(error);
-    const failure = MediaDeviceFailure.getFailure(error);
-    if (failure) {
-      let message: string;
-      switch (failure) {
-        case MediaDeviceFailure.PermissionDenied:
-          message = 'Permission denied. Please allow access to your microphone/camera in your browser settings.';
-          break;
-        case MediaDeviceFailure.NotFound:
-          message = 'No microphone or camera found. Please check your device connections.';
-          break;
-        case MediaDeviceFailure.DeviceInUse:
-          message = 'Your device is already in use by another application.';
-          break;
-        default:
-          message = 'Could not access your media devices.';
-      }
-      toast.error(message, {
-        id: `media-device-error-${failure}`,
-        duration: 5000,
-        position: 'top-right',
-        style: {
-          backgroundColor: 'var(--lk-bg2)',
-          color: 'var(--lk-fg)',
-          border: '1px solid var(--lk-border-color)',
-        },
-      });
-    } else {
-      toast.error(`Unexpected error: ${error.message}`, {
-        id: 'room-error',
-        duration: 5000,
-        position: 'top-right',
-        style: {
-          backgroundColor: 'var(--lk-bg2)',
-          color: 'var(--lk-fg)',
-          border: '1px solid var(--lk-border-color)',
-        },
-      });
+    if (!handleMediaDeviceError(error)) {
+      console.error(error);
+      showErrorToast(`Unexpected error: ${error.message}`, 'room-error');
     }
   }, []);
   const handleEncryptionError = React.useCallback((error: Error) => {
     console.error(error);
-    toast.error(`Encryption error: ${error.message}`, {
-      id: 'encryption-error',
-      duration: 5000,
-      position: 'top-right',
-      style: {
-        backgroundColor: 'var(--lk-bg2)',
-        color: 'var(--lk-fg)',
-        border: '1px solid var(--lk-border-color)',
-      },
-    });
+    showErrorToast(`Encryption error: ${error.message}`, 'encryption-error');
   }, []);
 
   React.useEffect(() => {

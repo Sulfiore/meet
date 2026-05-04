@@ -4,14 +4,13 @@ import { formatChatMessageLinks, RoomContext, VideoConference } from '@livekit/c
 import {
   ExternalE2EEKeyProvider,
   LogLevel,
-  MediaDeviceFailure,
   Room,
   RoomConnectOptions,
   RoomOptions,
   VideoPresets,
   type VideoCodec,
 } from 'livekit-client';
-import toast from 'react-hot-toast';
+import { handleMediaDeviceError } from '@/lib/media-device-error';
 import { DebugMode } from '@/lib/Debug';
 import { useEffect, useMemo, useState } from 'react';
 import { KeyboardShortcuts } from '@/lib/KeyboardShortcuts';
@@ -77,34 +76,7 @@ export function VideoConferenceClientImpl(props: {
         console.error(error);
       });
       room.localParticipant.enableCameraAndMicrophone().catch((error) => {
-        console.error(error);
-        const failure = MediaDeviceFailure.getFailure(error);
-        if (failure) {
-          let message: string;
-          switch (failure) {
-            case MediaDeviceFailure.PermissionDenied:
-              message = 'Permission denied. Please allow access to your microphone/camera in your browser settings.';
-              break;
-            case MediaDeviceFailure.NotFound:
-              message = 'No microphone or camera found. Please check your device connections.';
-              break;
-            case MediaDeviceFailure.DeviceInUse:
-              message = 'Your device is already in use by another application.';
-              break;
-            default:
-              message = 'Could not access your media devices.';
-          }
-          toast.error(message, {
-            id: `media-device-error-${failure}`,
-            duration: 5000,
-            position: 'top-right',
-            style: {
-              backgroundColor: 'var(--lk-bg2)',
-              color: 'var(--lk-fg)',
-              border: '1px solid var(--lk-border-color)',
-            },
-          });
-        }
+        handleMediaDeviceError(error);
       });
     }
   }, [room, props.liveKitUrl, props.token, connectOptions, e2eeSetupComplete]);
