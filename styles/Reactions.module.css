@@ -9,7 +9,6 @@
   background-color: var(--lk-bg2);
   border: 1px solid var(--lk-border-color);
   border-radius: var(--lk-border-radius);
-  z-index: 10;
 }
 
 .controlButton {
