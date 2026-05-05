@@ -7,6 +7,7 @@ import {
   TrackToggle,
   useRoomContext,
   useIsRecording,
+  useChat,
 } from '@livekit/components-react';
 import styles from '../styles/SettingsMenu.module.css';
 import { CameraSettings } from './CameraSettings';
@@ -22,6 +23,7 @@ export interface SettingsMenuProps extends React.HTMLAttributes<HTMLDivElement> 
 export function SettingsMenu(props: SettingsMenuProps) {
   const layoutContext = useMaybeLayoutContext();
   const room = useRoomContext();
+  const { send: sendChatMessage } = useChat();
   const recordingEndpoint = process.env.NEXT_PUBLIC_LK_RECORD_ENDPOINT;
 
   const settings = React.useMemo(() => {
@@ -40,6 +42,7 @@ export function SettingsMenu(props: SettingsMenuProps) {
   const isRecording = useIsRecording();
   const [initialRecStatus, setInitialRecStatus] = React.useState(isRecording);
   const [processingRecRequest, setProcessingRecRequest] = React.useState(false);
+  const [sendRecordingToChat, setSendRecordingToChat] = React.useState(false);
 
   React.useEffect(() => {
     if (initialRecStatus !== isRecording) {
@@ -59,11 +62,21 @@ export function SettingsMenu(props: SettingsMenuProps) {
     let response: Response;
     if (isRecording) {
       response = await fetch(recordingEndpoint + `/stop?roomName=${room.name}`);
+      if (response.ok) {
+        // Get the recording URL and send it to chat if enabled
+        try {
+          const data = await response.json();
+          if (data.url && sendRecordingToChat) {
+            await sendChatMessage(`Recording available: ${data.url}`);
+          }
+        } catch (error) {
+          console.error('Error sending recording URL to chat:', error);
+        }
+      }
     } else {
       response = await fetch(recordingEndpoint + `/start?roomName=${room.name}`);
     }
-    if (response.ok) {
-    } else {
+    if (!response.ok) {
       console.error(
         'Error handling recording request, check server logs:',
         response.status,
@@ -137,6 +150,16 @@ export function SettingsMenu(props: SettingsMenuProps) {
               <button disabled={processingRecRequest} onClick={() => toggleRoomRecording()}>
                 {isRecording ? 'Stop' : 'Start'} Recording
               </button>
+              <div style={{ marginTop: '1rem' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={sendRecordingToChat}
+                    onChange={(e) => setSendRecordingToChat(e.target.checked)}
+                  />
+                  <span>Send recording link to chat when finished</span>
+                </label>
+              </div>
             </section>
           </>
         )}
