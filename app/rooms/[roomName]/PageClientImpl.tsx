@@ -7,6 +7,8 @@ import { KeyboardShortcuts } from '@/lib/KeyboardShortcuts';
 import { RecordingIndicator } from '@/lib/RecordingIndicator';
 import { ChatNotifications } from '@/lib/ChatNotifications';
 import { SettingsMenu } from '@/lib/SettingsMenu';
+import { ReactionsBar } from '@/lib/reactions/ReactionsBar';
+import { HandRaiseNotifications } from '@/lib/reactions/HandRaiseNotifications';
 import { ConnectionDetails } from '@/lib/types';
 import {
   formatChatMessageLinks,
@@ -240,6 +242,8 @@ function VideoConferenceComponent(props: {
         <ChatNotifications />
         <DebugMode />
         <RecordingIndicator />
+        <ReactionsBar />
+        <HandRaiseNotifications />
       </RoomContext.Provider>
     </div>
   );

@@ -16,6 +16,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { KeyboardShortcuts } from '@/lib/KeyboardShortcuts';
 import { ChatNotifications } from '@/lib/ChatNotifications';
 import { SettingsMenu } from '@/lib/SettingsMenu';
+import { ReactionsBar } from '@/lib/reactions/ReactionsBar';
+import { HandRaiseNotifications } from '@/lib/reactions/HandRaiseNotifications';
 import { useSetupE2EE } from '@/lib/useSetupE2EE';
 import { useLowCPUOptimizer } from '@/lib/usePerfomanceOptimiser';
 
@@ -95,6 +97,8 @@ export function VideoConferenceClientImpl(props: {
         />
         <ChatNotifications />
         <DebugMode logLevel={LogLevel.debug} />
+        <ReactionsBar />
+        <HandRaiseNotifications />
       </RoomContext.Provider>
     </div>
   );
