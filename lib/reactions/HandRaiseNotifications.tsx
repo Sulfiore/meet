@@ -18,7 +18,7 @@ export function HandRaiseNotifications() {
           const name = participant.name || participant.identity;
           toast(`${name} raised their hand \u{270B}`, {
             id: `hand-raise-${participant.identity}`,
-            duration: 4000,
+            duration: Infinity,
             position: 'top-right',
             style: {
               backgroundColor: 'var(--lk-bg2)',
@@ -26,7 +26,18 @@ export function HandRaiseNotifications() {
               border: '1px solid var(--lk-border-color)',
             },
           });
+
+          if (document.hidden && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+            new Notification(name, { body: 'raised their hand \u{270B}' });
+          }
         }
+      }
+    }
+
+    // Dismiss toasts for participants who lowered their hand
+    for (const identity of previousState.current) {
+      if (!currentRaised.has(identity)) {
+        toast.dismiss(`hand-raise-${identity}`);
       }
     }
 

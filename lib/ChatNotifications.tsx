@@ -36,7 +36,7 @@ export function ChatNotifications() {
         },
       });
 
-      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      if (document.hidden && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
         new Notification(sender, { body: msg.message });
       }
     }
