@@ -26,6 +26,28 @@ export function SettingsMenu(props: SettingsMenuProps) {
   const { send: sendChatMessage } = useChat();
   const recordingEndpoint = process.env.NEXT_PUBLIC_LK_RECORD_ENDPOINT;
 
+  // Track E2EE state with React state to ensure re-renders
+  const [isE2EEEnabled, setIsE2EEEnabled] = React.useState(room.isE2EEEnabled);
+
+  React.useEffect(() => {
+    // Update E2EE state when it changes
+    const updateE2EEState = () => {
+      console.log('[SettingsMenu] E2EE status:', room.isE2EEEnabled);
+      setIsE2EEEnabled(room.isE2EEEnabled);
+    };
+
+    // Check on mount and update state
+    updateE2EEState();
+
+    // Poll E2EE status periodically since there's no specific room-level event
+    // (E2EE is set at connection time, but we poll to keep UI in sync)
+    const interval = setInterval(updateE2EEState, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [room]);
+
   const settings = React.useMemo(() => {
     return {
       media: { camera: true, microphone: true, label: 'Media Devices', speaker: true },
@@ -142,24 +164,55 @@ export function SettingsMenu(props: SettingsMenuProps) {
           <>
             <h3>Record Meeting</h3>
             <section>
-              <p>
-                {isRecording
-                  ? 'Meeting is currently being recorded'
-                  : 'No active recordings for this meeting'}
-              </p>
-              <button disabled={processingRecRequest} onClick={() => toggleRoomRecording()}>
-                {isRecording ? 'Stop' : 'Start'} Recording
-              </button>
-              <div style={{ marginTop: '1rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={sendRecordingToChat}
-                    onChange={(e) => setSendRecordingToChat(e.target.checked)}
-                  />
-                  <span>Send recording link to chat when finished</span>
-                </label>
-              </div>
+              {isE2EEEnabled ? (
+                <div
+                  style={{
+                    padding: '1rem',
+                    backgroundColor: 'var(--lk-bg3)',
+                    borderRadius: '8px',
+                    border: '1px solid var(--lk-border-color)',
+                  }}
+                >
+                  <p style={{ margin: 0, color: 'var(--lk-fg2)' }}>
+                    🔒 Recording is disabled for end-to-end encrypted meetings
+                  </p>
+                  <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: 'var(--lk-fg3)' }}>
+                    End-to-end encryption prevents server-side recording to protect your privacy.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <p>
+                    {isRecording
+                      ? 'Meeting is currently being recorded'
+                      : 'No active recordings for this meeting'}
+                  </p>
+                  <button
+                    disabled={processingRecRequest}
+                    onClick={() => toggleRoomRecording()}
+                    style={{ cursor: processingRecRequest ? 'not-allowed' : 'pointer' }}
+                  >
+                    {isRecording ? 'Stop' : 'Start'} Recording
+                  </button>
+                  <div style={{ marginTop: '1rem' }}>
+                    <label
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={sendRecordingToChat}
+                        onChange={(e) => setSendRecordingToChat(e.target.checked)}
+                      />
+                      <span>Send recording link to chat when finished</span>
+                    </label>
+                  </div>
+                </>
+              )}
             </section>
           </>
         )}
