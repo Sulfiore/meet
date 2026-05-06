@@ -13,17 +13,17 @@
     "format:write": "prettier --write \"**/*.{ts,tsx,md,json}\""
   },
   "dependencies": {
-    "@datadog/browser-logs": "^5.23.3",
+    "@datadog/browser-logs": "^5.35.1",
     "@livekit/components-react": "2.9.20",
     "@livekit/components-styles": "1.2.0",
     "@livekit/krisp-noise-filter": "0.4.3",
-    "@livekit/track-processors": "^0.7.0",
+    "@livekit/track-processors": "^0.7.2",
     "livekit-client": "2.18.8",
     "livekit-server-sdk": "2.15.2",
     "next": "15.5.15",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "react-hot-toast": "^2.5.2",
+    "react-hot-toast": "^2.6.0",
     "tinykeys": "^3.0.0"
   },
   "devDependencies": {
